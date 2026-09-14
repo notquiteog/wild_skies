@@ -1,38 +1,135 @@
-# wild_skies (Official mirror)
+# Crystal compatibility fork
 
-Installable releases of the **Wild Skies** mod for [gen1recomp](https://github.com/bryanthaboi/gen1recomp).
+Fork of [Shane Hudson’s Wild Skies](https://github.com/shanehudson-gen1recomp-mods/monorepo),
+based on release 1.12.1. Original code remains under the included MIT license.
+Version1.12.2 corrects native Gen2 collision queries on neighbouring maps and
+retains upstream’s missing-player-cell guard. The native seam regression passes
+11 checks. Shared Gen2 skies and the unrelated reported bouncing ground actor
+are not claimed fixed.
 
-Ambient flying Pokémon from the local encounter table roam the sky in loose flocks, resting on streets and rooftops.
+# Wild Skies
+
+Adds flying Pokémon to the overworld. Species come from each map's own
+encounter table, so Pidgey and Spearow cross the early routes, the
+Zubat line comes out at night and fills the caves at any hour, the
+open sea belongs to Pidgeotto, Pidgeot and Fearow, and towns and
+cities get rooftop birds that never pick a fight. They cast shadows,
+flap their wings, and are sized by their Pokédex height.
+
+Birds roam rather than commute: they wander the sky on lazy curving
+paths, drift between heights in the same band the free_fly mount uses,
+and sometimes arrive as a loose flock of the same species that wheels
+together. They rest on the grass, and with the Dramatic Shape Voxel Mod
+installed also on building roofs, then fly off when you get close or
+when their visit is over.
+
+Connected outdoor maps keep distinct resident flocks. Birds visible across a
+seam are already moving there and become that map's live flock when you cross,
+while the area behind remains populated. Doors and other full transitions
+still refresh the sky.
+
+The sky is busy, so most birds are scenery: only the bold ones (about a
+third) will meet you head on. If you reach a bold low one before it
+gets away, a normal wild battle starts with that species and level, and
+the flock then keeps its distance for a while so fights never chain.
+High flyers never trigger battles from the ground. If you also have
+[free_fly](../free_fly) installed, flying into one starts its battle
+mid-air, under the same rules.
+
+And once in a very long while (1 in 1000 spawns), the bird crossing an
+open outdoor sky is Articuno, Zapdos or Moltres, around L50. A legend
+flies alone, is always bold, and never appears over towns, in caves or
+under the forest canopy, so when you do see one it can actually be
+fought and caught.
+
+Wild Skies also loads on Gen 2 (Gold) boots. Johto's skies come from
+Gold's own time-of-day encounter tables, so Hoothoot and friends own
+the night without any hand list, and birds wear their species' own
+overworld icon from your imported Gold cache, coloured with that
+species' shipped palette. Connected maps keep their resident flocks
+across seams there too; shared skies stay Gen 1-only for now. Gold
+support is new and lightly play-tested; reports welcome.
 
 ![Demo](https://raw.githubusercontent.com/shanehudson-gen1recomp-mods/monorepo/main/.github/wild_skies-demo.gif)
 
-Grab the newest `.zip` from [Releases](https://github.com/shanehudson-gen1recomp-mods/wild_skies/releases) and install it in-game: **MODS > Import mod .zip**. Installed copies get update checks through the launcher automatically.
+## Options
 
-Source code and issues live in the [mods monorepo](https://github.com/shanehudson-gen1recomp-mods/monorepo); this repo only hosts releases.
-
-## Tested alongside
-
-Gen 2 (Gold) support in 1.9.0 is covered by the headless suite and
-`modkit gen2check`, plus several in-game Gold rounds during
-development (spawning, levels, seams, sprites, battles); a full
-pre-release Gold pass is still recommended.
-
-Third-party mods this release was run alongside, with the exact
-versions used. Later versions of these mods may change behavior; if a
-combo misbehaves, check the version you have against this list first.
-
-| Mod | Version tested | Notes |
+| Option | Default | What it does |
 |---|---|---|
-| [Dramatic Shape Voxel Mod](https://github.com/DramaticShape/DramaticShapeVoxelMod) | 1.6.2 | flyers billboard in the diorama with real altitude, rooftop perching on its building volumes |
-| [Wilds of Kanto](https://github.com/gamecorner-033/Gen1PC-OverworldEncounters) (`overworld_wild_spawns`) | 1.12.1 | its levitates art dresses the birds; the sky tick heals if its follower engine resets the update hook |
-| Overworld Wild Encounters (`overworld_encounters`) | 0.0.5 | its roamers own the ground, this mod owns the air, battles never cross |
-| Gen1 Modern UI (`gen1_modern_ui`) | 0.8.3 | wild_skies 1.6.1 broke its modern menus (our old overworld draw hook tripped its renderer check); fixed in 1.6.2, also update free_fly to 1.5.2 if installed |
-| [Crystal 251](https://github.com/Deftones565/gen1recomp-mod-crystal-251) (`CRYSTAL_251`) | 0.10.1 | compatibility developed against its source and covered by the headless suite (derived pools, night ecology); not yet play-tested in game |
+| SKY DENSITY | MED | LOW / MED / HIGH flyer caps and spawn cooldowns |
+| BIRD SIZE | NORMAL | SMALL / NORMAL / LARGE / HUGE draw scale on top of dex height |
+| GROUND BATTLES | ON | low birds (perched, landing, flushed) can battle a walking player |
+| SKY ART | AUTO | AUTO keeps bird-shaped species flapping and portraits the rest (Crystal 251's Gen 2 portraits included); PORTRAIT / CLASSIC force one look |
+| FLIGHT MOTION | ON | birds bank into turns, pitch with climbs and dives, and pulse with the flap; pure motion, works on any art |
 
-## All mods in this family
+## Works well with
 
-- [Double Battles](https://github.com/shanehudson-gen1recomp-mods/double_battles) (`double_battles`): Wild and trainer double battles: 1v2, 2v2 and trainer pairs, in classic, wide and 3D.
-- [Free Fly](https://github.com/shanehudson-gen1recomp-mods/free_fly) (`free_fly`): A party member that knows FLY can take off and free-roam over the overworld, then land anywhere walkable.
-- [PMD Sky Sprites](https://github.com/shanehudson-gen1recomp-mods/pmd_sky_sprites) (`pmd_sky_sprites`): Wild flyers and your FLY mount wear species-true, 8-direction PMD animation sheets in the air. Ships community art only (PMDCollab SpriteCollab, CC BY-NC 4.0, credits included), which covers a small roster. For full coverage of all 251 species, supply your own game: drop a cartridge dump of Pokemon Mystery Dungeon: Explorers of Sky (US) - a .nds file - into this mod's folder and the official in-air animations are read straight off your cart while you play. In memory only: nothing official ships with the mod and nothing is extracted to disk. The IMPORT PMD setting turns cartridge reading off.
-- **Wild Skies** (`wild_skies`, this repo): Ambient flying Pokémon from the local encounter table roam the sky in loose flocks, resting on streets and rooftops.
-- [Dev Hook Inspector](https://github.com/shanehudson-gen1recomp-mods/dev-hook-inspector) (`dev-hook-inspector`): Developer tool: a HOOKS entry on the START menu lists every installed mod's public exports, engine-hook wraps and events.
+Tested alongside these, with the versions noted (later versions may add
+overlapping features of their own, so check their changelogs):
+
+- [Overworld Wild Encounters](https://github.com/gamecorner-033/Gen1PC-OverworldEncounters)
+  (tested with 0.0.5): recommended. It puts visible roaming Pokémon on
+  the ground while this mod handles the sky, and the flyers landing and
+  taking off fit right in alongside its roamers. Battles don't overlap:
+  its roamers handle the ground, this mod's birds handle the air.
+- [Dramatic Shape Voxel Mod](https://github.com/DramaticShape/DramaticShapeVoxelMod)
+  (tested with 1.6.0): flyers billboard in the 3D diorama with real
+  altitude.
+- [free_fly](../free_fly): aerial interception; also the source of the
+  mount-riding flight this mod's birds share their sky with.
+- [double_battles](../double_battles): a bumped bird brings its
+  flockmate as the second foe, a summoned bird can be recruited into a
+  wild double, and a sky bird that survives an undecided fight (you
+  ran, or caught the other one) returns visibly to the air. Legendary
+  sightings always stay 1v1, so a partner can never spoil the catch.
+- [Crystal 251](https://github.com/Deftones565/gen1recomp-mod-crystal-251)
+  (compatibility work against 0.10.1): the sky reads whatever the
+  dataset hosts, so its Johto flyers cross the routes it places them
+  on, Hoothoot and friends keep to the night per its own ecology,
+  and Mantine patrols the ambient sea air. Lugia and Ho-Oh
+  never roll in the sky; Crystal stages them at its sanctuaries.
+
+For a full mount system (controllable flying, ground and surf mounts),
+see [Dramatic Sky Ride](https://github.com/mfrtechconsult/dramatic-sky-ride).
+This mod only adds ambient wildlife.
+
+## For mod authors
+
+The full reference with payloads and examples is
+[INTEGRATION.md](../INTEGRATION.md) in the repository. The short
+version:
+
+`exports.flyerAt(cellX, cellY, radius)` reads the nearest flyer,
+`exports.takeFlyer(...)` consumes it and returns its species and level.
+That is the supported seam free_fly's interception uses; nothing needs
+to reach into this mod's internals.
+
+`exports.spawnFlyer(species, level)` spawns one flyer on demand for
+scenario mods: entry point, height and behaviour roll as usual, ambient
+caps are not consulted. Returns the flyer id, or nil and a reason.
+
+When a ground bump starts a battle, the event
+`mod.wild_skies.flyer_bumped` broadcasts `{ species, level, cellX,
+cellY }`; whenever `takeFlyer` consumes a flyer, whoever called it,
+`mod.wild_skies.flyer_taken` broadcasts the same shape.
+
+Sprite packs with flying or hovering art can register it through
+`exports.registerSpriteSource(source)` (and unregister by id); the
+source shape is documented in INTEGRATION.md. Each of our mods bundles
+its own resolver, so register with every mod you want to dress.
+
+## Install
+
+1. Download `wild_skies-<version>.zip` from the
+   [releases page](https://github.com/shanehudson-gen1recomp-mods/wild_skies/releases).
+2. In the game, open MODS from the pause menu (or press F10) and pick
+   Import mod .zip.
+3. Enable the mod in the same menu.
+
+Updates show up in the mod manager automatically once installed.
+
+Known rough edges are listed in `mod.card`.
+
+Pokémon is a trademark of Nintendo; the Gen 1 games are © Nintendo /
+Creatures Inc. / GAME FREAK inc. Unofficial fan mod; no ROMs, no
+copyrighted game content. See the repository NOTICE.md.
