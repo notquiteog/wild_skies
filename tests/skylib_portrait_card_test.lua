@@ -18,7 +18,7 @@ package.loaded["src.render.SpriteRenderer"] = {
   new = function(def, seed)
     return { def = def, seed = seed, frameCount = def.frames or 1,
              frameWidth = def.frameWidth, frameHeight = def.frameHeight,
-             frames = { [0] = "q0" } }
+             frames = { [0] = "q0" }, resolveImage = function() error("engine palette baker tried to open a virtual file") end }
   end,
 }
 
@@ -115,6 +115,7 @@ T.eq(Assets.image("battle/front/scyther.png").stock,
 T.eq(r.image.idata:getWidth(), 16, "renderer texture is the 16x16 bake")
 T.eq(r.image.idata:getHeight(), 16,
      "a frame-0 16x16 window covers the texture exactly")
+T.check(r:resolveImage() == r.image, "virtual card bypasses filesystem OBJ palette baking")
 T.check(r.draw ~= nil, "the 2D overworld draw survives the bake")
 T.check(not Sky.trueSized(r), "a baked card is not a True Size sheet")
 

@@ -343,6 +343,16 @@ end
 local CARD = 16
 local CARD_PREFIX = "sky_family/card/"
 
+-- Generated cards already carry alpha and their resolved colors. Engine 0.2.73
+-- can send even trueColor records through the monochrome OBJ baker, which
+-- reads image bytes from disk. These virtual cards exist only in GPU memory.
+-- Keep this override on our own renderer instances; native sprites and the
+-- engine palette pipeline retain their normal behavior.
+local function bindCard(renderer, image)
+  renderer.image = image
+  renderer.resolveImage = function(self) return self.image end
+end
+
 local function registerCard(rel, image)
   local okA, Assets = pcall(require, "src.render.Assets")
   if not (okA and type(Assets) == "table"
@@ -584,7 +594,7 @@ local function borrowedSprite(data, species, dex, seedPrefix)
                 -- the strip IS a classic walker sheet now, and saying
                 -- so is what animates the flap on the walk phase
                 def.walker = true
-                renderer.image = card
+                bindCard(renderer, card)
               end
             end
           end
@@ -717,7 +727,7 @@ local function goldPicRenderer(data, species, seedPrefix)
     local okR, r = pcall(SpriteRenderer.new, def, seed)
     -- the def's trueColor makes the baked card the texture a voxel
     -- pipeline binds, so it must match the def's 16x16 window
-    if okR and r then renderer = r; renderer.image = card end
+    if okR and r then renderer = r; bindCard(renderer, card) end
   end
   if not renderer then
     def.image, def.frameWidth, def.frameHeight = path, size, size

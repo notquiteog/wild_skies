@@ -1,3 +1,9 @@
+## 1.12.3 — 2026-09-22
+
+Keep generated sky cards on their own in-memory image resolver. Engine
+0.2.73 monochrome palettes otherwise try to open virtual card filenames
+and force HD-2D worlds back to 2D. Native sprites retain the engine resolver.
+
 ## 1.12.2 — 2026-09-14 (Crystal fork)
 
 Pass the native tileset to MapDef.defIsWalkableCell/defIsWaterCell for connected
