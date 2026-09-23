@@ -3,7 +3,7 @@ return {
   author    = "Shane Hudson",
   tags      = { "overworld", "ambient", "cosmetic", "lets-go" },
   differences = {
-    changed = {},
+    changed = { "captured native doubles partners stay removed when the engine promotes the second foe into its capture slot" },
     added = {
       "FLYING species from the map's grass slots fly across with a shadow",
       "ambient skies derive from the world's encounter tables, so dataset overhauls (Crystal 251) fill the air with their own species automatically",
@@ -15,7 +15,7 @@ return {
       "icon-only classes (bug/plant/quadruped/snake) ride the bird look",
       "bold low birds support ground battles; optional Ride provides aerial interception",
       "voxel mode shows flyers as billboards with altitude (lightly tested)",
-      "this all-generation preview has compile and logic checks; packaged gameplay verification is pending",
+      "all three carts pass boot/settings checks; full-map/controller/network coverage remains incomplete, and aerial claims require Ride's event-namespace fix",
       "native Gen3 uses collision-safe ground perches; rooftop perches await a renderer-independent public roof query",
       "native Gen3 ambient fallback pools are curated FRLG species, rather than the legacy world-wide encounter-frequency model",
     },

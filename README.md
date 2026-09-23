@@ -2,7 +2,7 @@
 
 Fork of [Shane Hudson’s Wild Skies](https://github.com/shanehudson-gen1recomp-mods/monorepo),
 based on release 1.12.1. Original code remains under the included MIT license.
-Version **1.13.0-test.1** adds native Gen3 ecology, the same five saved settings,
+Version **1.13.0-test.2** includes native Gen3 ecology, the same five saved settings,
 native OPTIONS and SKY DEX pages, neighboring flocks, and ground/air encounters.
 Every generation runs independently. Wilds, Ride, Doubles, Online and Battle Art
 are optional; there are no required mod dependencies.
@@ -11,7 +11,10 @@ Online uses a separate host-owned SKY roster. Claims reserve the exact bird
 through its battle and restore that identity on escape or player defeat.
 Guests never create replacement birds or recruit unclaimed shared flockmates.
 See [native coverage](docs/NATIVE_PARITY.md) for tested contracts and remaining
-differences. Gameplay verification follows the packaged test release.
+differences. The three published carts passed boot/settings checks; native ground
+shared encounters passed two-endpoint QA. This patch also prevents a captured
+second flockmate from respawning. Aerial integration needs the corresponding
+Ride event-namespace fix and its packaged regression run.
 
 # Wild Skies
 

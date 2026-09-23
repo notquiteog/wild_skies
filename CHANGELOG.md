@@ -1,3 +1,10 @@
+## 1.13.0-test.2 — 2026-09-22
+
+Prevent a captured native doubles partner from returning to the sky when the
+engine promotes that second foe into the capture slot. Other living, uncaught
+flockmates still retain their original identities. The native contract suite
+passes 55 assertions, including both cases.
+
 ## 1.13.0-test.1 — 2026-09-22
 
 Add native Gen3 skies with all five shared options, native settings/Sky Dex,

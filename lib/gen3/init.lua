@@ -335,7 +335,12 @@ return function(mod)
    local second=ev.battle and((ev.battle.battlers and ev.battle.battlers[3])or ev.battle.enemy2)
    local function restore(row,mon)if row and(not mon or(mon.hp or 0)>0)then local f=field(row.map);if f then row.mode='rise';row.altTarget=48;row.t=1;f.rows[row.id]=row end end end
    if ev.result=='run'or ev.result=='lose'then restore(battle.lead,ev.battle and ev.battle.enemy and ev.battle.enemy.mon);restore(battle.mate,second and second.mon)
-   elseif ev.result=='catch'or ev.result=='caught'then restore(battle.mate,second and second.mon)end
+   elseif ev.result=='catch'or ev.result=='caught'then
+    -- Doubles promotes the remaining foe into enemy for capture while keeping
+    -- its original battler slot. That living mon is captured, not a survivor.
+    local captured=ev.battle and ev.battle.enemy and ev.battle.enemy.mon
+    if not second or second.mon~=captured then restore(battle.mate,second and second.mon)end
+   end
   end
  end)
  mod.hooks:wrap('core.quit_to_launcher',function(nextFn,...)S.fields={};S.pending=nil;S.sharedBattle=nil;S.menu=false;Art.dispose();return nextFn(...)end)

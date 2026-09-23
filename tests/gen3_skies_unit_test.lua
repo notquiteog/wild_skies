@@ -108,4 +108,12 @@ allowBattle=true;X.takeFlyer(10,10,1,0,12);X.grantSharedSkyFieldContact(Map.curr
 for _,fn in ipairs(events['battle.ended'])do fn({result='catch'})end
 eq(finishes[#finishes].consumed,true,'native catch result commits authoritative bird')
 X.unregisterSharedSkyProvider('test');eq(X.spawnFlyer(16,5)~=nil,true,'disconnect restores independent sky')
+local lead={id='local:lead',map=Map.current};local mate={id='local:mate',map=Map.current}
+local captured={species=16,hp=20};local surviving={species=16,hp=20}
+S.localBattle={lead=lead,mate=mate}
+for _,fn in ipairs(events['battle.ended'])do fn({result='catch',battle={enemy={mon=captured},battlers={[3]={mon=captured}}}})end
+eq(S.fields[Map.current].rows[mate.id],nil,'captured promoted second foe never respawns')
+S.localBattle={lead=lead,mate=mate}
+for _,fn in ipairs(events['battle.ended'])do fn({result='catch',battle={enemy={mon=captured},battlers={[3]={mon=surviving}}}})end
+eq(S.fields[Map.current].rows[mate.id],mate,'uncaught living second foe retains its identity')
 print('gen3_skies_unit_test: '..checks..' assertions passed')

@@ -1,4 +1,4 @@
-# 1.13.0-test.1 coverage
+# 1.13.0-test.2 coverage
 
 Wild Skies runs independently on Gen1, Gen2 and native Gen3. No companion mod is
 required. Shared option keys/defaults live in `options.lua`; all five are active
@@ -65,9 +65,15 @@ are limited to the current map and native resident neighbors.
 `luajit tests/gen3_skies_unit_test.lua` checks standalone native boot, all option
 rows, live art changes, ecology filters, neighbor projection, Sky Dex, shared
 species conversion, guest authority, altitude checks and grant/removal/survivor
-ordering. All 53 assertions pass. These are contract doubles, not gameplay. All new modules compile.
+ordering and captured second-foe restoration. All 55 assertions pass. These are contract doubles, not gameplay. All new modules compile.
 The 19 inherited tests require `tests.modkit`, which is absent from this checkout
 and the official 0.3.1 engine package; their fixture-dependent run is pending.
+
+The published test.1 archives passed full-cart boots in disposable Yellow,
+Crystal and FireRed profiles, with all five live Skies option rows. FireRed
+ground shared-bird contact, native battle and host consumption passed the
+two-endpoint test. Airborne integration exposed Ride's event-namespace error;
+its corrected archive requires the matching aerial regression before approval.
 
 Native rooftop perches await a renderer-independent roof-height API: current
 Battle Art roof data depends on the active rendered footprint. Native ground
