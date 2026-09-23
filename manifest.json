@@ -1,18 +1,21 @@
 {
   "id": "wild_skies",
   "name": "Wild Skies",
-  "version": "1.12.3",
+  "version": "1.13.0-test.1",
   "entry": "main.lua",
   "api": 2,
   "games": [
     "gen1",
-    "gen2"
+    "gen2",
+    "gen3"
   ],
   "category": "MECHANIC",
   "priority": 110,
   "dependencies": [],
   "optional_dependencies": [
-    "CRYSTAL_251"
+    "CRYSTAL_251",
+    "overworld_wild_spawns",
+    "double_battles"
   ],
   "conflicts": [],
   "permissions": [
@@ -20,5 +23,6 @@
   ],
   "game_version": "0.0.0-dev || >=0.1.0 <2.0.0",
   "description": "Ambient flying Pok\u00e9mon from the local encounter table roam the sky in loose flocks, resting on streets and rooftops.",
-  "github": "notquiteog/wild_skies"
+  "github": "notquiteog/wild_skies",
+  "options_schema": "options.lua"
 }

@@ -11,6 +11,17 @@
 -- but kept out of the NPC list, so scripts and talk targeting never see
 -- them.  All art is the player's own imported cache; nothing ships.
 return function(mod)
+  local schema=assert((loadstring or load)(assert(mod:read("options.lua")),"@wild_skies/options"))()
+  mod.options:define(schema)
+  local okVersion,Version=pcall(require,"src.core.GameVersion")
+  if okVersion and Version.generation then
+    local menu=assert((loadstring or load)(assert(mod:read("lib/InGameOptions.lua")),"@wild_skies/options_menu"))()
+    menu.install(mod,schema,"WILD SKIES")
+    if Version.generation()==3 then
+      return assert((loadstring or load)(assert(mod:read("lib/gen3/init.lua")),"@wild_skies/gen3"))()(mod)
+    end
+  end
+
   -- shared helpers, synced in as lib/shared/ by the monorepo's scripts
   local function loadShared(file)
     local src = mod:read("lib/shared/" .. file)
@@ -24,27 +35,7 @@ return function(mod)
     return
   end
 
-  mod.options:define({
-    { key = "density", label = "SKY DENSITY", type = "choice", default = "med",
-      choices = { { "LOW", "low" }, { "MED", "med" }, { "HIGH", "high" } } },
-    { key = "size", label = "BIRD SIZE", type = "choice", default = "normal",
-      choices = { { "SMALL", "small" }, { "NORMAL", "normal" },
-                  { "LARGE", "large" }, { "HUGE", "huge" } } },
-    { key = "bumps", label = "GROUND BATTLES", type = "toggle", default = true },
-    -- no game of this era ships flying-pose overworld art, so the sky
-    -- composes one.  AUTO keeps bird-shaped species flapping (their
-    -- class sheet, coloured on Gold) and gives every other shape its
-    -- species-true battle portrait, Crystal 251's extracted Gen 2
-    -- portraits included; the other two force one look for everything.
-    { key = "skyart", label = "SKY ART", type = "choice",
-      default = "auto",
-      choices = { { "AUTO", "auto" }, { "PORTRAIT", "portrait" },
-                  { "CLASSIC", "classic" } } },
-    -- simulated flight attitude: banking into turns, pitching with
-    -- climbs, a flap pulse; pure motion, so it works on any art
-    { key = "motion", label = "FLIGHT MOTION", type = "toggle",
-      default = true },
-  })
+
 
   -- a bird at or below this height can collide with a walking player;
   -- anything cruising higher is safe scenery from the ground
@@ -287,6 +278,7 @@ return function(mod)
   local sharedActive, sharedAuthority = false, false
   local sharedMap, sharedRevision = nil, 0
   local sharedSnapshots, pendingSharedClaim = {}, nil
+  local sharedBattle
   local requestSharedContact -- forward: installed with the provider adapter
   local battleRest = 0
   local lastBump = nil
@@ -395,7 +387,10 @@ return function(mod)
   mod.exports.takeFlyer = function(cellX, cellY, radius)
     local f = flyerNear(cellX, cellY, radius)
     if not f then return nil end
-    if sharedActive then requestSharedContact(f); return nil end
+    if sharedActive then
+      if requestSharedContact(f) then return nil, 'pending' end
+      return nil
+    end
     local Game = require("src.core.Game")
     f.dead = true
     detach(Sky.liveOverworld(Game), f)
@@ -418,7 +413,7 @@ return function(mod)
   -- consumers are resting.  The rest exists to stop battles CHAINING,
   -- not to empty the second slot of the one that already started.
   mod.exports.takeFlockmate = function(cellX, cellY, radius)
-    if sharedActive and not sharedAuthority then return nil end
+    if sharedActive then return nil end
     radius = radius or 8
     local best, bestD
     for _, f in ipairs(flyers) do
@@ -455,7 +450,7 @@ return function(mod)
   -- once.  Returns the summonId, or nil and a reason.
   local summonSerial = 0
   mod.exports.summonFlyer = function(cellX, cellY, opts)
-    if sharedActive and not sharedAuthority then return nil, "shared replica" end
+    if sharedActive then return nil, "shared sky requires authority contact" end
     opts = opts or {}
     if battleRest > 0 then return nil, "resting" end
     local radius = opts.radius or 8
@@ -498,7 +493,7 @@ return function(mod)
   -- player is actually stood next to.
   mod.hooks:wrap("encounter.roll", function(next, encDef, ctx)
     local enc = next(encDef, ctx)
-    if enc and enc.species and not (sharedActive and not sharedAuthority) then
+    if enc and enc.species and not sharedActive then
       local Game = require("src.core.Game")
       local ow = Sky.liveOverworld(Game)
       local p = ow and ow.player
@@ -529,7 +524,7 @@ return function(mod)
   -- free_fly's exported flight state when it is around, else the raw
   -- field it stamps on the player
   local function playerAirborne(p)
-    local ff = mod.find("free_fly")
+    local ff = mod.find("DRAMATIC_SKY_RIDE") or mod.find("free_fly")
     local api = ff and ff.exports and ff.exports.isFlying
     if api then
       local ok, v = pcall(api)
@@ -1769,19 +1764,20 @@ return function(mod)
     local owLive = Sky.liveOverworld(Game)
     local mapId = owLive and owLive.map and owLive.map.id
     local airborne = false
-    local ff = mod.find("free_fly")
+    local ff = mod.find("DRAMATIC_SKY_RIDE") or mod.find("free_fly")
     local isFlying = ff and ff.exports and ff.exports.isFlying
     if isFlying then
       local ok, value = pcall(isFlying)
       airborne = ok and value == true
     end
+    local pending = { map = mapId, id = f.id, flyer = f, airborne = airborne }
+    pendingSharedClaim = pending
     local ok, accepted = pcall(sharedProvider.requestClaim,
       mapId, f.id, { airborne = airborne, domain = "SKY" })
     if ok and accepted == true then
-      pendingSharedClaim = { map = mapId, id = f.id, flyer = f,
-        airborne = airborne }
       return true
     end
+    if pendingSharedClaim == pending then pendingSharedClaim = nil end
     return false
   end
 
@@ -1794,6 +1790,15 @@ return function(mod)
       mod.exports.clearSharedSkyField()
     end
     sharedProviderId, sharedProvider = id, provider
+    if provider.role == 'host' or provider.role == 'guest' then
+      sharedActive = true
+      sharedAuthority = provider.role == 'host' or provider.localAuthority == true
+    end
+    if provider.role == 'guest' then
+      local Game = require('src.core.Game')
+      clearAll(Sky.liveOverworld(Game))
+      sharedSnapshots, residentFields, residentGhosts = {}, {}, {}
+    end
     local Game = require("src.core.Game")
     local owLive = Sky.liveOverworld(Game)
     if owLive then syncResidentGhosts(Game, owLive) end
@@ -1855,13 +1860,8 @@ return function(mod)
       sharedMap, sharedRevision = normalized.map, normalized.revision
     end
     reconcileSharedField(normalized)
-    if pendingSharedClaim and normalized.map == pendingSharedClaim.map then
-      local present = false
-      for _, row in ipairs(normalized.spawns) do
-        if row.id == pendingSharedClaim.id then present = true; break end
-      end
-      if not present then pendingSharedClaim = nil end
-    end
+    -- Reservation snapshots remove the visible actor before/after the grant.
+    -- Keep the pending identity until an explicit grant or denial consumes it.
     return true
   end
 
@@ -1872,22 +1872,43 @@ return function(mod)
     return true
   end
 
-  mod.exports.grantSharedSkyFieldContact = function(mapId, id)
+  mod.exports.canClaimSky = function(position, row, context, mapId)
+    if not position or not row or not row.bold or position.map ~= mapId
+       or not finite(position.x) or not finite(position.y) or not finite(row.x)
+       or not finite(row.y) or not finite(row.alt) or isTownMap(mapId) then return false end
+    local Game = require('src.core.Game')
+    local ow = Sky.liveOverworld(Game)
+    local known = ow and ow.map and ow.map.id == mapId
+    for _, neighbor in ipairs(ow and ow.neighbors or {}) do
+      if neighbor.map and neighbor.map.id == mapId then known = true end
+    end
+    if not known then return false end
+    if math.abs(position.x-math.floor((row.x+8)/16))
+       + math.abs(position.y-math.floor((row.y+8)/16)) > 1 then return false end
+    if context and context.airborne then
+      return finite(position.altitude) and position.altitude > LOW_ALT
+        and math.abs(position.altitude-row.alt) <= 20
+    end
+    return mod.options:get('bumps') == true and row.alt <= LOW_ALT
+  end
+
+  mod.exports.grantSharedSkyFieldContact = function(mapId, id, authoritativeRow)
     local pending = pendingSharedClaim
     if not (pending and pending.map == mapId and pending.id == id) then
       return false
     end
     pendingSharedClaim = nil
     local f = pending.flyer
-    if not f or f.dead then return false end
-    local hit = { id = f.id, species = f.species, level = f.level or 5,
-      altitude = f.alt or 0 }
-    removeFlyer(f)
-    battleRest = BATTLE_REST
+    if not f then return false end
+    local row = authoritativeRow or f
+    local hit = { id = f.id, species = row.species, level = row.level or 5,
+      altitude = row.alt or 0 }
     local Game = require("src.core.Game")
+    local ow = Sky.liveOverworld(Game)
+    if not ow or not ow.map or ow.map.id ~= mapId or (ow.busy and ow:busy()) then return false end
     local started = false
     if pending.airborne then
-      local ff = mod.find("free_fly")
+      local ff = mod.find("DRAMATIC_SKY_RIDE") or mod.find("free_fly")
       local start = ff and ff.exports and ff.exports.startSharedSkyEncounter
       if start then
         local ok, result = pcall(start, hit)
@@ -1895,12 +1916,8 @@ return function(mod)
       end
     end
     if not started then
-      local db = mod.find("double_battles")
-      if db and db.exports and db.exports.tagOrganic then
-        pcall(db.exports.tagOrganic)
-      end
-      lastBump = { species = hit.species, level = hit.level,
-        at = love.timer.getTime() }
+      -- A shared grant owns one exact row; do not recruit an unclaimed mate.
+      lastBump = nil
       pcall(function()
         require("src.core.Sound").playCry(Game.data, hit.species)
       end)
@@ -1908,7 +1925,11 @@ return function(mod)
         { "start_battle", "wild", hit.species, hit.level },
       }) == true
     end
-    return started
+    if started then
+      removeFlyer(f); battleRest = BATTLE_REST
+      sharedBattle = { map = mapId, id = id }
+    end
+    return started == true
   end
 
   mod.exports.denySharedSkyFieldContact = function(mapId, id)
@@ -1922,7 +1943,7 @@ return function(mod)
     local Game = require("src.core.Game")
     clearAll(Sky.liveOverworld(Game))
     sharedActive, sharedAuthority, sharedMap = false, false, nil
-    sharedRevision, pendingSharedClaim, cooldown = 0, nil, 3
+    sharedRevision, pendingSharedClaim, sharedBattle, cooldown = 0, nil, nil, 3
     sharedSnapshots, residentFields, residentGhosts = {}, {}, {}
     local ow = Sky.liveOverworld(Game)
     if ow then syncResidentGhosts(Game, ow) end
@@ -2477,6 +2498,14 @@ return function(mod)
   -- a fight that ended without deciding the sky bird (the player ran,
   -- or caught the other one) puts the survivor back in the air
   mod.events:on("battle.ended", function(ev)
+    if sharedBattle then
+      local claim = sharedBattle; sharedBattle = nil
+      if sharedProvider and sharedProvider.finishClaim then
+        sharedProvider.finishClaim(claim.map,claim.id,
+          { consumed=ev.result=='win' or ev.result=='catch' or ev.result=='caught',result=ev.result })
+      end
+      return
+    end
     local b = ev and ev.battle
     local rec = b and skyPartner[b]
     if not rec then return end

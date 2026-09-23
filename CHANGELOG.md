@@ -1,3 +1,13 @@
+## 1.13.0-test.1 — 2026-09-22
+
+Add native Gen3 skies with all five shared options, native settings/Sky Dex,
+standalone imported species art, connected flocks and altitude, ground/air
+encounters, public flyer/source/summon APIs, and optional Ride/Doubles hooks.
+Use the same host-owned SKY claim lifecycle in Gen1/2/3: guests wait for grants,
+failed starts release reservations, native capture/defeat commits, and survivors
+return through the host. Keep shared encounters single unless a future protocol
+also claims a second bird. No gameplay verification is claimed for this preview.
+
 ## 1.12.3 — 2026-09-22
 
 Keep generated sky cards on their own in-memory image resolver. Engine

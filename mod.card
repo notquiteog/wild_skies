@@ -1,5 +1,5 @@
 return {
-  summary   = "Ambient flying Pokémon cross the map overhead, Let's Go style.",
+  summary   = "Flying Pokemon and connected flocks across Gen1, Gen2 and native Gen3. Independent ecology with optional Ride, Doubles and Online integration.",
   author    = "Shane Hudson",
   tags      = { "overworld", "ambient", "cosmetic", "lets-go" },
   differences = {
@@ -8,12 +8,16 @@ return {
       "FLYING species from the map's grass slots fly across with a shadow",
       "ambient skies derive from the world's encounter tables, so dataset overhauls (Crystal 251) fill the air with their own species automatically",
       "loads on Gen 2 (Gold): Johto's per-time-of-day tables feed the sky, birds wear their species' overworld icon",
+      "native Gen3 supports all five saved options, OPTIONS and SKY DEX, species art, neighboring flocks, ground perches and aerial encounters",
+      "optional Online SKY claims preserve host identities through battles and restore survivors without guest duplication",
     },
     known = {
       "icon-only classes (bug/plant/quadruped/snake) ride the bird look",
-      "battles only via free_fly's aerial interception",
+      "bold low birds support ground battles; optional Ride provides aerial interception",
       "voxel mode shows flyers as billboards with altitude (lightly tested)",
-      "Gen 2 support is new and not yet play-tested on a real Gold boot",
+      "this all-generation preview has compile and logic checks; packaged gameplay verification is pending",
+      "native Gen3 uses collision-safe ground perches; rooftop perches await a renderer-independent public roof query",
+      "native Gen3 ambient fallback pools are curated FRLG species, rather than the legacy world-wide encounter-frequency model",
     },
   },
   credits = {},
