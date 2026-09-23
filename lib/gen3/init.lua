@@ -35,6 +35,7 @@ return function(mod)
   return E.environment(map,defFor(map))
  end
  local function field(map)
+  if not eligible(map)then return end
   if S.fields[map]then return S.fields[map]end
   local def=defFor(map);local w,h=size(def)
   if not w or not h or not E.environment(map,def)then return end
@@ -296,8 +297,9 @@ return function(mod)
  local previous=Objects.forDraw
  Objects.forDraw=function(...)
   local out=previous(...)
+  if not eligible(Map.current)then return out end
   local offsets={[Map.current]={0,0}};for _,entry in ipairs(Map.world or{})do offsets[entry.id]={entry.ox or 0,entry.oy or 0}end
-  for map,offset in pairs(offsets)do local f=S.fields[map];if f then for _,r in pairs(f.rows)do if r.graphicsId then
+  for map,offset in pairs(offsets)do local f=S.fields[map];if f and eligible(map) then for _,r in pairs(f.rows)do if r.graphicsId then
    local view={};for k,v in pairs(r)do view[k]=v end
    view.px=r.px+offset[1]*16;view.py=r.py+offset[2]*16;view.cellX=r.cellX+offset[1];view.cellY=r.cellY+offset[2]
    out[#out+1]=view

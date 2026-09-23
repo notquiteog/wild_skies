@@ -49,6 +49,8 @@ eq(#X.sharedSkyNeighborMaps(),1,'native seam neighbor discovery')
 eq(X.sharedSkyFieldSnapshot('FR_HOUSE'),nil,'no indoor sky')
 eq(X.sharedSkyFieldSnapshot('FR_REMOTE_ROUTE').map,'FR_REMOTE_ROUTE','host can simulate native remote route')
 local E=X.nativeSkyEcology
+eq(E.environment('FR_CITY_CENTER',{mapType=8,kind='town',environment='TOWN'}),nil,'native indoor type outranks facade town')
+eq(E.environment('FR_MT_MOON_CENTER',{mapType=8,kind='indoor'}),nil,'indoor mountain-name Center is not a cave')
 eq(E.flying(84),false,'flightless species excluded')
 local pool=E.pool(Map.current,def,12);eq(#pool,1,'day ecology excludes nocturnal and flightless slots')
 pool=E.pool(Map.current,def,22);eq(#pool,2,'night ecology includes bats')
@@ -68,6 +70,8 @@ S.update(.1);eq(X.nativeSkyArt.sprites[oldGid],nil,'retired generated art releas
 local neighbor=X.sharedSkyFieldSnapshot('FR_ROUTE_2');local views=Objects.forDraw();local ghost=false
 for _,view in ipairs(views)do if view.map=='FR_ROUTE_2'and view.px>=40*16 then ghost=true end end
 eq(ghost,true,'neighbor flyers projected through native object list')
+Map.current='FR_HOUSE';eq(#Objects.forDraw(),0,'indoor room excludes stale outdoor neighbors')
+Map.current='FR_ROUTE_1';eq(#Objects.forDraw()>0,true,'return outdoors restores flock')
 eq(#X.skyDexLanes(nil,16),3,'native dex previews all art lanes')
 eq(X.openSkyDex(game),true,'native sky dex opens');eq(S.menu,true,'dex modal active')
 hooks['input.key'](game,{phase='pressed',key='escape'});eq(S.menu,false,'native key hook closes dex')

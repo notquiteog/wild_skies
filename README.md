@@ -1,5 +1,11 @@
 ## 1.13.0 — 2026-09-22
 
+## 1.13.1
+
+Fix flying Pokémon appearing inside FireRed/LeafGreen Pokémon Centers. Native indoor map types now override the compatibility facade's town label; indoor rendering also excludes cached outdoor neighbors. Outdoor flocks, caves and optional multiplayer integrations retain their existing behavior.
+
+Verified with native Center captures on Gen1Recomp 0.3.2 and 59 integration assertions, including indoor/outdoor transitions. No companion mod is required.
+
 Includes the native FireRed/LeafGreen port, shared settings/SkyDex, optional host-owned sky encounters and caught flockmate restoration. Online sky encounters remain single battles; roof perches require an engine API that is not currently available.
 
 Numbered release of the tested 1.13.0-test.2 build. Runtime and assets are unchanged except version metadata; packaging and cart pins are refreshed. Validation from the prior exact releases remains applicable: official Gen1Recomp 0.3.1, isolated profiles, targeted native rendering/integration checks. This release does not claim complete cross-generation feature or visual parity.

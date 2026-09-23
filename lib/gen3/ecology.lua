@@ -18,8 +18,11 @@ return function(Pokemon,Encounters)
  end
  function E.environment(map,def)
   if not def then return end
+  -- Numeric native map types outrank the facade's town/environment labels.
+  local mapType=tonumber(def.mapType)
+  if mapType==8 or mapType==9 then return end
   local name=tostring(map):upper()
-  local cave=def.mapType==4 or name:find('CAVE',1,true)or name:find('MT_',1,true)or name:find('TUNNEL',1,true)or name:find('VICTORY_ROAD',1,true)
+  local cave=mapType==4 or (not mapType and (name:find('CAVE',1,true)or name:find('MT_',1,true)or name:find('TUNNEL',1,true)or name:find('VICTORY_ROAD',1,true)))
   local town=def.kind=='town'or def.environment=='TOWN'or def.mapType==1 or def.mapType==2
   if not cave and not town and(def.kind=='indoor'or def.environment=='INDOOR'or def.mapType==8 or def.mapType==9)then return end
   local canopy=name:find('FOREST',1,true)~=nil
