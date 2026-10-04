@@ -4,6 +4,10 @@ return function(Pokemon,Encounters)
  local night={ZUBAT=true,GOLBAT=true,CROBAT=true,HOOTHOOT=true,NOCTOWL=true,MURKROW=true}
  local flightless={DODUO=true,DODRIO=true,NATU=true}
  local legends={ARTICUNO=true,ZAPDOS=true,MOLTRES=true}
+ local ok,GV=pcall(require,'src.core.GameVersion')
+ local hoenn=ok and GV.get and GV.get()=='emerald'
+ local rare=hoenn and {'LATIAS','LATIOS','RAYQUAZA'} or {'ARTICUNO','ZAPDOS','MOLTRES'}
+ for _,name in ipairs(rare)do legends[name]=true end
  local bands={PIDGEOTTO={15,20},PIDGEOT={25,32},FEAROW={20,27},GOLBAT={22,26}}
  function E.key(species)return Pokemon.keyName and Pokemon.keyName(species)or tostring(Pokemon.name(species)):upper():gsub('[^A-Z0-9]','')end
  function E.species(species)
@@ -20,7 +24,7 @@ return function(Pokemon,Encounters)
   if not def then return end
   -- Numeric native map types outrank the facade's town/environment labels.
   local mapType=tonumber(def.mapType)
-  if mapType==8 or mapType==9 then return end
+  if mapType==5 or mapType==8 or mapType==9 then return end
   local name=tostring(map):upper()
   local cave=mapType==4 or (not mapType and (name:find('CAVE',1,true)or name:find('MT_',1,true)or name:find('TUNNEL',1,true)or name:find('VICTORY_ROAD',1,true)))
   local town=def.kind=='town'or def.environment=='TOWN'or def.mapType==1 or def.mapType==2
@@ -49,6 +53,9 @@ return function(Pokemon,Encounters)
    local fallback=(env.cave or nightTime and not sea)
     and {'ZUBAT','ZUBAT','GOLBAT'}or sea and{'PIDGEOTTO','PIDGEOT','FEAROW','FEAROW'}
     or{'PIDGEY','PIDGEY','SPEAROW','PIDGEOTTO','FEAROW'}
+   if hoenn and not env.cave and (sea or not nightTime) then
+    fallback=sea and {'WINGULL','WINGULL','PELIPPER'} or {'TAILLOW','TAILLOW','SWELLOW','WINGULL'}
+   end
    for _,name in ipairs(fallback)do
     local species=E.species(name)
     if species then local band=bands[name];pool[#pool+1]={species=species,lo=band and band[1]or(lo==100 and 3 or lo),hi=band and band[2]or(hi==1 and 8 or hi)}end
@@ -59,7 +66,7 @@ return function(Pokemon,Encounters)
  function E.pick(pool,env,random)
   random=random or math.random
   if env and env.open and random(1,1000)==1 then
-   local id=E.species(({'ARTICUNO','ZAPDOS','MOLTRES'})[random(1,3)])
+   local id=E.species(rare[random(1,#rare)])
    if id then return id,random(48,52),true end
   end
   if #pool==0 then return end

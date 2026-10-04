@@ -1,3 +1,9 @@
+## 1.14.0 — 2026-10-04
+
+Added Hoenn sky ecology and rare regional flyers using imported Emerald species IDs. Underwater maps have no aerial population. Local encounter tables and optional host-owned shared skies remain authoritative.
+
+Tested against official Gen1Recomp 0.3.51. Existing games retain their native data and defaults. See Battle Art’s Emerald QA record for the exact integration coverage and remaining gaps.
+
 ## 1.13.0 — 2026-09-22
 
 ## 1.13.1

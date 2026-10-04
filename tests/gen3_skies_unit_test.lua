@@ -120,4 +120,13 @@ eq(S.fields[Map.current].rows[mate.id],nil,'captured promoted second foe never r
 S.localBattle={lead=lead,mate=mate}
 for _,fn in ipairs(events['battle.ended'])do fn({result='catch',battle={enemy={mon=captured},battlers={[3]={mon=surviving}}}})end
 eq(S.fields[Map.current].rows[mate.id],mate,'uncaught living second foe retains its identity')
+-- Emerald species IDs are engine-native, not National Dex ordinals.
+package.loaded['src.core.GameVersion'].get=function()return 'emerald'end
+for id,name in pairs({[304]='TAILLOW',[305]='SWELLOW',[309]='WINGULL',[310]='PELIPPER',[407]='LATIAS',[408]='LATIOS',[409]='RAYQUAZA'})do names[id]=name end
+local R=dofile('lib/gen3/ecology.lua')(Pokemon,{tableFor=function()return{}end})
+local hp=R.pool('EM_OLDALE_TOWN',{mapType=1},12)
+eq(hp[1].species,304,'Hoenn fallback uses imported Taillow ID')
+eq(R.environment('EM_UNDERWATER',{mapType=5}),nil,'no sky underwater')
+local rare=R.pick(hp,{open=true},function(a,b)return a end)
+eq(rare,407,'Hoenn rare spawn uses imported Latias ID')
 print('gen3_skies_unit_test: '..checks..' assertions passed')
