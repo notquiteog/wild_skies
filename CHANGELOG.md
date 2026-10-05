@@ -1,3 +1,7 @@
+## 1.14.1 — 2026-10-04
+
+Packaging refresh for the coordinated Battle Art 1.31.0 cart release. Runtime behavior is unchanged from 1.14.0. Companions remain optional; no new gameplay or multiplayer verification is claimed. Requires Gen1Recomp 0.3.51 or newer for the bundled carts.
+
 ## 1.14.0 — 2026-10-04
 
 Added Hoenn sky ecology and rare regional flyers using imported Emerald species IDs. Underwater maps have no aerial population. Local encounter tables and optional host-owned shared skies remain authoritative.
