@@ -5,7 +5,8 @@ return function(Pokemon,Encounters)
  local flightless={DODUO=true,DODRIO=true,NATU=true}
  local legends={ARTICUNO=true,ZAPDOS=true,MOLTRES=true}
  local ok,GV=pcall(require,'src.core.GameVersion')
- local hoenn=ok and GV.get and GV.get()=='emerald'
+ local version=ok and GV.get and GV.get()
+ local hoenn=ok and ((GV.layout and GV.layout()=='rse')or version=='ruby'or version=='sapphire'or version=='emerald')
  local rare=hoenn and {'LATIAS','LATIOS','RAYQUAZA'} or {'ARTICUNO','ZAPDOS','MOLTRES'}
  for _,name in ipairs(rare)do legends[name]=true end
  local bands={PIDGEOTTO={15,20},PIDGEOT={25,32},FEAROW={20,27},GOLBAT={22,26}}
