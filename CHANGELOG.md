@@ -1,3 +1,9 @@
+## 1.15.0 — 2026-10-10
+
+Ruby and Sapphire now use the Hoenn sky ecology from the shared Gen3 pipeline instead of generic spawn lists. Gen3 options wrappers keep native cartridge rows intact when this mod is active, and long RS mod option labels stay clear of native value columns.
+
+Verified with the LuaJIT suite: Hoenn skies, native option arguments, and option overflow/scroll tests pass. Requires Gen1Recomp 0.3.51 or newer for the bundled carts.
+
 ## 1.14.1 — 2026-10-04
 
 Packaging refresh for the coordinated Battle Art 1.31.0 cart release. Runtime behavior is unchanged from 1.14.0. Companions remain optional; no new gameplay or multiplayer verification is claimed. Requires Gen1Recomp 0.3.51 or newer for the bundled carts.
