@@ -1,7 +1,7 @@
 {
   "id": "wild_skies",
   "name": "Wild Skies",
-  "version": "1.15.0",
+  "version": "1.15.1",
   "entry": "main.lua",
   "api": 2,
   "games": [
@@ -22,7 +22,7 @@
     "engine_internals"
   ],
   "game_version": "0.0.0-dev || >=0.1.0 <2.0.0",
-  "description": "Ambient flying Pok\u00e9mon from the local encounter table roam the sky in loose flocks, resting on streets and rooftops.",
+  "description": "Ambient flying Pokémon from the local encounter table roam the sky in loose flocks, resting on streets and rooftops.",
   "github": "notquiteog/wild_skies",
   "options_schema": "options.lua"
 }

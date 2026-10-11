@@ -1,3 +1,7 @@
+## 1.15.1 — 2026-10-11
+
+Coordinated maintenance release of the existing standalone sky encounters and optional host-authoritative multiplayer integration. No encounter behavior changes since 1.15.0; version and package refresh only.
+
 ## 1.15.0 — 2026-10-10
 
 Ruby and Sapphire now use the Hoenn sky ecology from the shared Gen3 pipeline instead of generic spawn lists. Gen3 options wrappers keep native cartridge rows intact when this mod is active, and long RS mod option labels stay clear of native value columns.
