@@ -1,3 +1,7 @@
+## 1.15.2 — 2026-10-15
+
+Maintenance packaging release for the coordinated seven-mod update. Runtime behavior is unchanged from 1.15.1; existing optional integrations and independent installation remain supported.
+
 ## 1.15.1 — 2026-10-11
 
 Coordinated maintenance release of the existing standalone sky encounters and optional host-authoritative multiplayer integration. No encounter behavior changes since 1.15.0; version and package refresh only.
