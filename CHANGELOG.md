@@ -1,3 +1,9 @@
+## 1.15.4 — Portable API3 (2026-10-23)
+
+Move to Portable API3 canonical world records and battle entry. Preserve exact native party selection and encounter identity. Prevent a visible ground encounter from recruiting itself through optional Doubles integration.
+
+Requires Gen1Recomp 0.3.96 or newer. No companion mod is required.
+
 ## 1.15.2 — 2026-10-15
 
 Maintenance packaging release for the coordinated seven-mod update. Runtime behavior is unchanged from 1.15.1; existing optional integrations and independent installation remain supported.

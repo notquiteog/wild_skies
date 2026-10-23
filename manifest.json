@@ -1,7 +1,7 @@
 {
   "id": "wild_skies",
   "name": "Wild Skies",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "entry": "main.lua",
   "api": 3,
   "games": [
