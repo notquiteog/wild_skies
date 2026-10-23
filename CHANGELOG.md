@@ -1,5 +1,7 @@
 ## 1.15.4 — Portable API3 (2026-10-23)
 
+- Register GBA settings through the public API3 options hook and screen stack, preserving native fonts and combined-menu ownership.
+
 Move to Portable API3 canonical world records and battle entry. Preserve exact native party selection and encounter identity. Prevent a visible ground encounter from recruiting itself through optional Doubles integration.
 
 Requires Gen1Recomp 0.3.96 or newer. No companion mod is required.

@@ -31,14 +31,19 @@ local Rows=module('src.ui.game3.option_rows',{build=function()return{}end,group=
 local begins=0;local allowBattle=true;local onBattle
 module('src.core.game3.battle_bridge',{startWild=function(_,game,enc)begins=begins+1;if onBattle then onBattle(species,level)end;return allowBattle end})
 local game={phase='field',data={maps=defs},options={modOptions={}},mods={modOptions={}},input={clearEdges=noop}}
-local mod={id='wild_skies',game=game,world={startWildBattle=function(_,species,level)eq(type(species),'string','API3 battle species is canonical');eq(Pokemon.speciesFromName(species)~=nil,true,'canonical species resolves');begins=begins+1;if onBattle then onBattle(species,level)end;return allowBattle end},exports={},log={info=noop,warn=noop,error=noop},find=function(id)return others[id]end,
+local screens={}
+local mod={id='wild_skies',content={screens={register=function(_,id,screen)screens[id]=screen end}},game=game,world={startWildBattle=function(_,species,level)eq(type(species),'string','API3 battle species is canonical');eq(Pokemon.speciesFromName(species)~=nil,true,'canonical species resolves');begins=begins+1;if onBattle then onBattle(species,level)end;return allowBattle end},exports={},log={info=noop,warn=noop,error=noop},find=function(id)return others[id]end,
  read=function(_,path)local f=assert(io.open(path,'rb'));local s=f:read('*a');f:close();return s end,
  options={define=function(_,rows)for _,r in ipairs(rows)do options[r.key]=r.default end end,get=function(_,key)return options[key]end},
- hooks={wrap=function(_,name,fn)local old=hooks[name]or function()end;hooks[name]=function(...)return fn(old,...)end end},
+ hooks={wrap=function(_,name,fn)local old=hooks[name]or function(_,rows)if name=='ui.options.rows'then return rows end end;hooks[name]=function(...)return fn(old,...)end end},
  events={on=function(_,name,fn)events[name]=events[name]or{};table.insert(events[name],fn)end,emit=noop}}
 assert(loadfile('main.lua'))()(mod)
 local X,S=mod.exports,mod.exports.gen3
-eq(#Rows.build({game=game}),5,'five native settings rows')
+eq(#Rows.build({game=game}),0,'private native rows untouched')
+local settings=hooks['ui.options.rows'](game,{})
+eq(#settings,1,'one public native settings group')
+eq(settings[1].value(),'5 OPTIONS','all five schema settings retained')
+eq(type(screens['wild_skies:options'].new),'function','public category screen registered')
 local snapshot
 for _=1,12 do snapshot=X.sharedSkyFieldSnapshot(Map.current)end
 eq(#snapshot.spawns,6,'medium density cap')
