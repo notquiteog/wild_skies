@@ -16,7 +16,7 @@ return function(mod)
  local S={fields={},serial=0,time=0,rest=0,revision=0}
  local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1000000 end
  local density={low={3,8},med={6,4},high={10,2.5}}
- local function game()return mod.world.game end
+ local function game()return mod.game end
  local function option(key)return mod.options:get(key)end
  local function ex(id)local other=mod.find and mod.find(id);return other and other.exports end
  local function emit(name,payload)if mod.events and mod.events.emit then mod.events:emit('mod.wild_skies.'..name,payload)end end
@@ -113,10 +113,14 @@ return function(mod)
   local enc={species=row.species,level=row.level}
   S.mate=nil
   local db=ex('double_battles')
-  S.lastBump=not shared and{species=row.species,flock=row.flock,alt=row.alt}or nil
-  if not shared and db and db.tagOrganic then db.tagOrganic(enc,{map=Map.current,terrain='air',requirePartnerSource=true})end
+  S.lastBump=not shared and{id=row.id,species=row.species,flock=row.flock,alt=row.alt}or nil
+  local species=E.key(row.species)
+  local function begin()return mod.world:startWildBattle(species,enc.level)end
   S.building=true
-  local result={pcall(require('src.core.game3.battle_bridge').startWild,Runtime._mod,game(),enc,{})}
+  local result
+  if not shared and db and db.withOrganicSource then
+   result={pcall(db.withOrganicSource,species,enc.level,{map=Map.current,terrain='air',requirePartnerSource=true},begin)}
+  else result={pcall(begin)}end
   S.building=false
   if not result[1]or not result[2]then S.lastBump=nil;return false end
   if not shared then S.localBattle={lead=row,mate=S.mate};S.mate=nil end
@@ -136,7 +140,7 @@ return function(mod)
   local f=S.fields[Map.current];if not f then return end
   for _,r in pairs(f.rows)do
    local d=math.abs(r.cellX-x)+math.abs(r.cellY-y)
-   if r.bold and r.t>=.75 and not r.summon and not E.legend(r.species)and(not lead or r.flock==lead.flock)
+   if r.bold and r.t>=.75 and not r.summon and not E.legend(r.species)and(not lead or r.id~=lead.id and r.flock==lead.flock)
     and d<=(radius or 8)and(alt==nil or math.abs(r.alt-alt)<=(tolerance or 20))and(not distance or d<distance)then row,distance=r,d end
   end
   if not row then return end

@@ -28,10 +28,10 @@ module('src.core.game3.runtime',{_mod={}})
 module('src.mods.Runtime',{emit=noop})
 module('src.ui.game3.start_menu',{close=noop})
 local Rows=module('src.ui.game3.option_rows',{build=function()return{}end,group=function(rows)return rows end})
-local begins=0;local allowBattle=true
-module('src.core.game3.battle_bridge',{startWild=function(_,game,enc)begins=begins+1;return allowBattle end})
+local begins=0;local allowBattle=true;local onBattle
+module('src.core.game3.battle_bridge',{startWild=function(_,game,enc)begins=begins+1;if onBattle then onBattle(species,level)end;return allowBattle end})
 local game={phase='field',data={maps=defs},options={modOptions={}},mods={modOptions={}},input={clearEdges=noop}}
-local mod={id='wild_skies',world={game=game},exports={},log={info=noop,warn=noop,error=noop},find=function(id)return others[id]end,
+local mod={id='wild_skies',game=game,world={startWildBattle=function(_,species,level)eq(type(species),'string','API3 battle species is canonical');eq(Pokemon.speciesFromName(species)~=nil,true,'canonical species resolves');begins=begins+1;if onBattle then onBattle(species,level)end;return allowBattle end},exports={},log={info=noop,warn=noop,error=noop},find=function(id)return others[id]end,
  read=function(_,path)local f=assert(io.open(path,'rb'));local s=f:read('*a');f:close();return s end,
  options={define=function(_,rows)for _,r in ipairs(rows)do options[r.key]=r.default end end,get=function(_,key)return options[key]end},
  hooks={wrap=function(_,name,fn)local old=hooks[name]or function()end;hooks[name]=function(...)return fn(old,...)end end},
@@ -132,4 +132,25 @@ for _,version in ipairs{'ruby','sapphire','emerald','firered','leafgreen'}do
  local rare=R.pick(hp,{open=true},function(a,b)return a end)
  eq(rare,hoenn and 407 or 144,version..' native legendary ID')
 end
+-- Public battle starters build a fresh encounter. Ground-bump provenance must
+-- never recruit the still-visible lead as its own same-flock partner.
+local partnerSource
+others.double_battles={exports={registerPartnerSource=function(source)partnerSource=source end,registerDoubleVeto=function()end,
+ withOrganicSource=function(species,level,context,begin)
+  eq(species,'PIDGEY','ground source canonical ID');eq(context.requirePartnerSource,true,'ground source has no fallback enemy');return begin()
+ end}}
+S.fields={};hooks['input.step'](game,0)
+options.bumps=true;Map.current='FR_ROUTE_1';S.rest=0
+local f=S.fields[Map.current];f.rows={};f.cooldown=999
+local function ground(species,dx)
+ local id=assert(X.spawnFlyer(species,7));local r=f.rows[id]
+ r.px=(Player.cellX+dx)*16;r.py=Player.cellY*16;r.cellX=Player.cellX+dx;r.cellY=Player.cellY;r.alt=0;r.t=2;r.bold=true;r.flock='test';r.mode='ground'
+ return id
+end
+local lead,mate=ground(16,0),ground(17,1)
+onBattle=function()local sp=partnerSource.provide(nil,{generation=3,enemy={mon={species=16,level=7}}});eq(sp,17,'provider consumes a different same-flock member')end
+S.update(0);eq(f.rows[lead],nil,'ground lead consumed once');eq(f.rows[mate],nil,'actual mate consumed once')
+f.rows={};f.cooldown=999;S.rest=0;ground(16,0)
+onBattle=function()eq(partnerSource.provide(nil,{generation=3,enemy={mon={species=16,level=7}}}),nil,'single visible lead cannot double itself')end
+S.update(0);onBattle=nil
 print('gen3_skies_unit_test: '..checks..' assertions passed')

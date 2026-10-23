@@ -1,3 +1,5 @@
+Development API compatibility: this tree targets Portable API 3 on Gen1Recomp 0.3.96 or newer. See the [API audit](docs/API3_AUDIT_2026-10-23.md) for native checks and remaining extension limits.
+
 ## 1.14.0 — 2026-10-04
 
 Added Hoenn sky ecology and rare regional flyers using imported Emerald species IDs. Underwater maps have no aerial population. Local encounter tables and optional host-owned shared skies remain authoritative.

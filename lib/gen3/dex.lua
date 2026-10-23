@@ -6,10 +6,10 @@ return function(mod,S,Art,E,Pokemon,busy)
  for nat=1,386 do local id=Pokemon.speciesFromNational and Pokemon.speciesFromNational(nat)or nat;if Pokemon.name(id)then list[#list+1]=id end end
  local cursor=1
  mod.exports.openSkyDex=function(game)
-  game=game or mod.world.game;if not game or game.phase~='field'or busy()then return false end
+  game=game or mod.game;if not game or game.phase~='field'or busy()then return false end
   S.menu=true;return true
  end
- mod.exports.skyDexLanes=function(_,species)return Art.lanes(species,mod.world.game)end
+ mod.exports.skyDexLanes=function(_,species)return Art.lanes(species,mod.game)end
  local update=Player.update
  Player.update=function(...)if S.menu then return end;return update(...)end
  local function key(k)
